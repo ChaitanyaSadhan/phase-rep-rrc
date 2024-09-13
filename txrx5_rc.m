@@ -1,5 +1,9 @@
 clear all;
+clc;
 %clf;
+
+trystr = 1;
+save_mat_str = "./audio_tx/call"+num2str(trystr)+"tx.mat";
 
 % Parameters
 Fs = 8000;                % Sampling frequency
@@ -11,9 +15,9 @@ phase_offset = pi/15;     % Known phase offset
 Nsym = 6;
 N = 1000;
 
-data = randi([0 M-1], N, 1);
-mod_data = pskmod(data, M, pi/M, 'gray');
-tx = upfirdn(mod_data, rcosdesign(0.35, Nsym, Ns, 'sqrt'), Ns, 1);
+data = randi([0 M-1], N, 1); %random data.
+mod_data = pskmod(data, M, pi/M, 'gray'); %modulating the data onto QPSK Symbols.
+tx = upfirdn(mod_data, rcosdesign(0.35, Nsym, Ns, 'sqrt'), Ns, 1); %raised cosine filtering.
 
 % Modulation
 t = (0:length(tx)-1)'/Fs;
@@ -41,6 +45,22 @@ for i = 1:ceil(N*Ns/zi)
 end
 duration = (length(tx))/8000
 
+%saving matfile.
+save(save_mat_str,"signal_in", "tx", "data")
+pause(1)
+%pushing into git.
+[status, cmdout] = system('git add -A');
+disp(cmdout);
+commitMessage = ['transmitting try ' num2str(trystr)];
+[status, cmdout] = system(['git commit -m "' commitMessage '"']);
+disp(cmdout);
+[status, cmdout] = system('git push');
+disp(cmdout);
+
+%txing sound.
+soundsc(tx,8000);
+
+
 %{
 %% pass through AMR channel
 audiowrite("temp/txSignal.wav",signal_in,Fs);
@@ -49,8 +69,9 @@ audiowrite("temp/txSignal.wav",signal_in,Fs);
 signal_out1 = audioread('temp/txSignal_out.wav');
 % Received from AMR channel
 %}
+
 dsignal_out = [signal_out1(41:end)*32; zeros(160,1)];
-rx_carrier = signal_out(1:size(signal_in,1));
+rx_carrier = dsignal_out(1:size(signal_in,1));
 
 % Demodulation
 rx_baseband = rx_carrier .* exp(-1j*2*pi*fc*t);

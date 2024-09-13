@@ -1,6 +1,19 @@
 clear all;
-%clf;
-
+clc
+trystr = 25;
+%git cmds.
+%git pull
+[status, cmdout] = system('git -C ./ pull'); disp(cmdout);
+% pause(1)
+%copying the recieved file.
+cpcmd = ['cp /home/kcsadhan23/Desktop/Thesis/osfstorage-archive/Experiments/myExperiments/phaserep/phase-rep/audio_tx/call' num2str(trystr) 'tx.mat /home/kcsadhan23/Desktop/Thesis/osfstorage-archive/Experiments/myExperiments/phaserep/audio_tx/'];
+[status, cmdout] = system(cpcmd);
+pause(1)
+%load params.mat
+addpath audio_rx/
+addpath audio_tx/
+load("call"+num2str(trystr)+"rx.mat")
+load("call"+num2str(trystr)+"tx.mat")
 % Parameters
 Fs = 8000;                % Sampling frequency
 fc = 1200;                % Carrier frequency

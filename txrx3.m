@@ -13,6 +13,8 @@ rep = 1;
 Nc = N*rep;
 tx_sym = zeros(K,N);
 tx_symc = zeros(K,Nc);
+
+%generating qpsk symbols: each value as 1 to 4
 for k = 1: K
     tx_sym(k,:) = randi(4,1,N);
     %tx_sym(k,:) = ones(1,N);
@@ -20,7 +22,7 @@ for k = 1: K
     tx_symc(k,:) = repelem(tx_sym(k,:), rep);
 end
 
-
+%phase correction.
 phase_correction = zeros(K,1);
 for i = 1: K
     switch fcin(i)
